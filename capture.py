@@ -24,6 +24,6 @@ def captureTopic():
     # store in dictionary
     dic = {"date": nowDate, "time": nowTime, "content": {key[i]: value[i] for i in range(len(key))}}
 
-    # 03 - Exit WebDriver & Return dic
+    # 03 - Exit WebDriver
     driver.quit()
     return dic
