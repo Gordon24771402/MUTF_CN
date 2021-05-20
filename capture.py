@@ -3,7 +3,7 @@ from selenium.webdriver import Chrome
 from datetime import datetime
 
 
-# function to capture net rate by topic
+# Function to Capture Net Rate by Topic
 def captureTopic():
     # 01 - WebDriver Configuration
     chromeOptions = Options()
@@ -16,7 +16,7 @@ def captureTopic():
     # 02 - Capture Net Rate by Topic
     driver.get('http://fund.eastmoney.com/ztjj/')
     # capture (date & time)
-    nowDate, nowTime = datetime.now().strftime("%Y-%m-%d"), datetime.now().strftime("%H:%M")
+    nowDate, nowTime = datetime.now().strftime("%Y-%m-%d"), datetime.now().strftime("%H:%M")  # 2021-05-20, 14:35
     # capture topic
     key = [w.text for w in driver.find_elements_by_class_name('spanwz')]
     # capture net rate
