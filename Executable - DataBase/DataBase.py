@@ -11,7 +11,7 @@ def updateByTopic():
         date, time = datetime.now().strftime("%Y-%m-%d"), datetime.now().strftime("%H:%M")
         calendar = get("http://fund.eastmoney.com/fundguzhi.html").text
         if date in calendar:
-            if time in ["09:35", "10:35", "11:35", "13:35", "14:35", "15:35"]:
+            if time in ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"]:
                 dataTopic = captureTopic()
                 print("{} dataTopic is Captured".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
                 storeTopic(dataTopic)
