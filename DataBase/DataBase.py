@@ -26,4 +26,4 @@ def updateByTopic():
 if __name__ == "__main__":
     updateByTopic()
 
-# pyinstaller -F --add-binary "chromedriver.exe";"." --clean main.py
+# pyinstaller -F --onefile --add-binary "chromedriver.exe";"." --clean DataBase.py
