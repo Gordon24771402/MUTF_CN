@@ -1,4 +1,4 @@
 DataBase/chromedriver.exe
 *.exe
 *.spec
-/.idea
+.idea/
