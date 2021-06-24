@@ -9,15 +9,21 @@ def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
         raise ValueError("Illegal Argument")
     # 用akshare获取：开放式基金-历史数据
     fInfo = ak.fund_em_open_fund_info(fund=fCode, indicator="单位净值走势")
-    # 用cPeriod参数：过滤交易日期
+    # 用cPeriod参数：选出历史数据区间
     if cPeriod:
-        fInfo = fInfo[-cPeriod:]
-    # 用sDate和eDate参数：过滤交易日期
+        fInfo = fInfo[-cPeriod:].reset_index(drop=True)
+    # 用sDate和eDate参数：选出历史数据区间
     elif sDate and eDate:
         sDate, eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
-        fInfo = fInfo.loc[(fInfo["净值日期"] >= sDate) & (fInfo["净值日期"] <= eDate)]
+        fInfo = fInfo.loc[(fInfo["净值日期"] >= sDate) & (fInfo["净值日期"] <= eDate)].reset_index(drop=True)
+    # 计算历史数据区间的最大回撤
+    maximumDrawdown = 0
+    for i in range(len(fInfo) - 1):
+        for j in range(i + 1, len(fInfo)):
+            drawdown = (fInfo["单位净值"][i] - fInfo["单位净值"][j]) / fInfo["单位净值"][i]
+            if drawdown > maximumDrawdown:
+                maximumDrawdown = drawdown
+    return maximumDrawdown
 
 
-
-max_drawdown(fCode="002083", sDate="2021-06-15")
-
+print(max_drawdown(fCode="002083", cPeriod=5*365))
