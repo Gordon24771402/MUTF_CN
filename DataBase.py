@@ -4,13 +4,15 @@ from datetime import datetime
 
 # 最大回撤
 def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
-    # 排除非法参数 1) cPeriod与(sDate或eDate)同时出现 2) 有sDate无eDate 3) 有eDate无sDate
+    # 排除非法参数： 1) cPeriod与(sDate或eDate)同时出现 2) 有sDate无eDate 3) 有eDate无sDate
     if (cPeriod and (sDate or eDate)) or (sDate and not eDate) or (eDate and not sDate):
         raise ValueError("Illegal Argument")
-
+    # 用akshare获取：开放式基金-历史数据
     fInfo = ak.fund_em_open_fund_info(fund=fCode, indicator="单位净值走势")
+    # 用cPeriod参数：过滤交易日期
     if cPeriod:
         fInfo = fInfo[-cPeriod:]
+    # 用sDate和eDate参数：过滤交易日期
     elif sDate and eDate:
         sDate, eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
         fInfo = fInfo.loc[(fInfo["净值日期"] >= sDate) & (fInfo["净值日期"] <= eDate)]
