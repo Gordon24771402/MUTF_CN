@@ -23,7 +23,11 @@ def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
             drawdown = (fInfo["单位净值"][i] - fInfo["单位净值"][j]) / fInfo["单位净值"][i]
             if drawdown > maximumDrawdown:
                 maximumDrawdown = drawdown
-    return maximumDrawdown
+    return "{:.2%}".format(maximumDrawdown)
 
 
-print(max_drawdown(fCode="002083", cPeriod=5*365))
+print(max_drawdown(fCode="001300", cPeriod=180))
+print(max_drawdown(fCode="002083", cPeriod=180))
+print(max_drawdown(fCode="161725", cPeriod=180))
+print(max_drawdown(fCode="005888", cPeriod=180))
+print(max_drawdown(fCode="009777", cPeriod=180))
