@@ -89,4 +89,4 @@ def beat_benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
     return "{:.2%}".format(benchmark_ratio)
 
 
-print(beat_benchmark_ratio("002083", cPeriod=180))
+print(beat_benchmark_ratio("005888", cPeriod=365))
