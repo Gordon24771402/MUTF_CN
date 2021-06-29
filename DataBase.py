@@ -56,6 +56,10 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
 
     # 用akshare获取：沪深300-历史数据
     benchmark = ak.stock_zh_index_daily(symbol="sh000300")
+    # 计算涨跌幅为多少
+    rate = [(benchmark["close"][i] - benchmark["close"][i - 1]) / (benchmark["close"][i - 1]) for i in range(1, len(benchmark))]
+    benchmark = benchmark[1:]
+    benchmark["rate"] = rate
     # 把date转化为column而不是作为index，方便后面的历史数据区间的选中
     benchmark = benchmark.reset_index().rename({'index': 'date'}, axis='columns')
     benchmark["date"] = benchmark["date"].apply(lambda x: x.to_pydatetime().date())
@@ -67,11 +71,12 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
         b_sDate, b_eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
         benchmark = benchmark.loc[(benchmark["date"] >= b_sDate) & (benchmark["date"] <= b_eDate)].reset_index(drop=True)
     # 舍弃无用的数据包
-    benchmark = benchmark["close"]
+    benchmark = benchmark["rate"]
 
-    print(len(fInfo))
-    print(len(benchmark))
+
+
+
 
 
 benchmark_ratio("005888", sDate="2021-03-28", eDate="2021-06-29")
-benchmark_ratio("005888", sDate="2021-03-28", eDate="2021-06-29")
+# benchmark_ratio("005888", cPeriod=180)
