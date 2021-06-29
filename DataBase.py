@@ -4,6 +4,14 @@ from datetime import datetime
 
 # 最大回撤
 def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
+    """
+    计算历史数据区间某基金的最大回撤
+    :param fCode: 基金代码
+    :param cPeriod: 区间长度（天）
+    :param sDate: 开始日期（yyyy-mm-dd）
+    :param eDate: 结束日期（yyyy-mm-dd）
+    :return: 最大回撤（%）
+    """
     # 排除非法参数： 1) cPeriod与(sDate或eDate)同时出现 2) 有sDate无eDate 3) 有eDate无sDate
     if (cPeriod and (sDate or eDate)) or (sDate and not eDate) or (eDate and not sDate):
         raise ValueError("Illegal Argument")
@@ -26,8 +34,11 @@ def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
     return "{:.2%}".format(maximumDrawdown)
 
 
-print(max_drawdown(fCode="001300", cPeriod=180))
-print(max_drawdown(fCode="002083", cPeriod=180))
-print(max_drawdown(fCode="161725", cPeriod=180))
-print(max_drawdown(fCode="005888", cPeriod=180))
-print(max_drawdown(fCode="009777", cPeriod=180))
+# 击败基准比率
+def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
+    # 排除非法参数： 1) cPeriod与(sDate或eDate)同时出现 2) 有sDate无eDate 3) 有eDate无sDate
+    if (cPeriod and (sDate or eDate)) or (sDate and not eDate) or (eDate and not sDate):
+        raise ValueError("Illegal Argument")
+
+
+print(help(max_drawdown))
