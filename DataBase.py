@@ -1,4 +1,4 @@
-import pandas as pd
+from collections import Counter
 import akshare as ak
 from datetime import datetime
 
@@ -34,16 +34,23 @@ def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
             drawdown = (fInfo["单位净值"][i] - fInfo["单位净值"][j]) / fInfo["单位净值"][i]
             if drawdown > maximumDrawdown:
                 maximumDrawdown = drawdown
+
     return "{:.2%}".format(maximumDrawdown)
 
 
 # 击败基准比率
-def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
+def beat_benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
     # 排除非法参数： 1) cPeriod与(sDate或eDate)同时出现 2) 有sDate无eDate 3) 有eDate无sDate
     if (cPeriod and (sDate or eDate)) or (sDate and not eDate) or (eDate and not sDate):
         raise ValueError("Illegal Argument")
     # 用akshare获取：开放式基金-历史数据
     fInfo = ak.fund_em_open_fund_info(fund=fCode, indicator="单位净值走势")
+    # 舍弃无用的数据包
+    fInfo = fInfo[["净值日期", "单位净值"]]
+    # 计算收益率为多少
+    rate = [(fInfo["单位净值"][i] - fInfo["单位净值"][i - 1]) / (fInfo["单位净值"][i - 1]) for i in range(1, len(fInfo))]
+    fInfo = fInfo[1:]
+    fInfo["rate"] = rate
     # 用cPeriod参数：选出历史数据区间
     if cPeriod:
         fInfo = fInfo[-cPeriod:].reset_index(drop=True)
@@ -52,7 +59,7 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
         f_sDate, f_eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
         fInfo = fInfo.loc[(fInfo["净值日期"] >= f_sDate) & (fInfo["净值日期"] <= f_eDate)].reset_index(drop=True)
     # 舍弃无用的数据包
-    fInfo = fInfo["单位净值"]
+    fInfo = fInfo["rate"]
 
     # 用akshare获取：沪深300-历史数据
     benchmark = ak.stock_zh_index_daily(symbol="sh000300")
@@ -61,7 +68,7 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
     benchmark["date"] = benchmark["date"].apply(lambda x: x.to_pydatetime().date())
     # 舍弃无用的数据包
     benchmark = benchmark[["date", "close"]]
-    # 计算涨跌幅为多少
+    # 计算收益率为多少
     rate = [(benchmark["close"][i] - benchmark["close"][i - 1]) / (benchmark["close"][i - 1]) for i in range(1, len(benchmark))]
     benchmark = benchmark[1:]
     benchmark["rate"] = rate
@@ -75,9 +82,11 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
     # 舍弃无用的数据包
     benchmark = benchmark["rate"]
 
+    # 计算区间内收益率击败沪深300的比例
+    benchmark = [1 if fInfo[i] > benchmark[i] else 0 for i in range(len(fInfo))]
+    benchmark_ratio = Counter(benchmark)[1] / len(benchmark)
+
+    return "{:.2%}".format(benchmark_ratio)
 
 
-
-
-benchmark_ratio("005888", sDate="2021-03-28", eDate="2021-06-29")
-# benchmark_ratio("005888", cPeriod=180)
+print(beat_benchmark_ratio("002083", cPeriod=180))
