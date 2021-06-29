@@ -1,3 +1,4 @@
+import pandas as pd
 import akshare as ak
 from datetime import datetime
 
@@ -24,6 +25,8 @@ def max_drawdown(fCode, cPeriod=0, sDate='', eDate=''):
     elif sDate and eDate:
         sDate, eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
         fInfo = fInfo.loc[(fInfo["净值日期"] >= sDate) & (fInfo["净值日期"] <= eDate)].reset_index(drop=True)
+    # 舍弃无用的数据包
+    fInfo = fInfo["单位净值"]
     # 计算历史数据区间的最大回撤
     maximumDrawdown = 0
     for i in range(len(fInfo) - 1):
@@ -46,11 +49,29 @@ def benchmark_ratio(fCode, cPeriod=0, sDate='', eDate=''):
         fInfo = fInfo[-cPeriod:].reset_index(drop=True)
     # 用sDate和eDate参数：选出历史数据区间
     elif sDate and eDate:
-        sDate, eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
-        fInfo = fInfo.loc[(fInfo["净值日期"] >= sDate) & (fInfo["净值日期"] <= eDate)].reset_index(drop=True)
+        f_sDate, f_eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
+        fInfo = fInfo.loc[(fInfo["净值日期"] >= f_sDate) & (fInfo["净值日期"] <= f_eDate)].reset_index(drop=True)
+    # 舍弃无用的数据包
+    fInfo = fInfo["单位净值"]
+
+    # 用akshare获取：沪深300-历史数据
+    benchmark = ak.stock_zh_index_daily(symbol="sh000300")
+    # 把date转化为column而不是作为index，方便后面的历史数据区间的选中
+    benchmark = benchmark.reset_index().rename({'index': 'date'}, axis='columns')
+    benchmark["date"] = benchmark["date"].apply(lambda x: x.to_pydatetime().date())
+    # 用cPeriod参数：选出历史数据区间
+    if cPeriod:
+        benchmark = benchmark[-cPeriod:].reset_index(drop=True)
+    # 用sDate和eDate参数：选出历史数据区间
+    elif sDate and eDate:
+        b_sDate, b_eDate = datetime.strptime(sDate, "%Y-%m-%d").date(), datetime.strptime(eDate, "%Y-%m-%d").date()
+        benchmark = benchmark.loc[(benchmark["date"] >= b_sDate) & (benchmark["date"] <= b_eDate)].reset_index(drop=True)
+    # 舍弃无用的数据包
+    benchmark = benchmark["close"]
+
+    print(len(fInfo))
+    print(len(benchmark))
 
 
-
-# print(benchmark_ratio("005888", cPeriod=180))
-stock_zh_index_daily_df = ak.stock_zh_index_daily(symbol="sh000300")
-print(stock_zh_index_daily_df)
+benchmark_ratio("005888", sDate="2021-03-28", eDate="2021-06-29")
+benchmark_ratio("005888", sDate="2021-03-28", eDate="2021-06-29")
